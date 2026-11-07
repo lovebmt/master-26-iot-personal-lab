@@ -188,3 +188,4 @@ pio device monitor -b 115200
 Tôi xin cam kết toàn bộ mã nguồn, cấu hình phần cứng, dữ liệu đo đạc thực tế từ cảm biến Sensirion SCD30, hình ảnh và video minh chứng trong báo cáo này do chính tôi thực hiện trên thiết bị thật.
 
 **Học viên:** Lê Đức Phương (MSHV: 2570480)
+
