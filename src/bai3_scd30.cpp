@@ -10,12 +10,19 @@
 #define I2C_SDA_PIN 27
 #define I2C_SCL_PIN 22
 
-// Thong tin Wi-Fi & CoreIOT
-const char* WIFI_SSID = "YOUR_WIFI_SSID";
-const char* WIFI_PASS = "YOUR_WIFI_PASSWORD";
-const char* MQTT_SERVER = "app.coreiot.io";
-const int   MQTT_PORT = 1883;
+// Thong tin Wi-Fi & CoreIOT (Bảo mật: tự động nạp credentials nội bộ nếu có, mặc định placeholder khi push Git)
+#if __has_include("credentials.h")
+#include "credentials.h"
+const char* WIFI_SSID    = LOCAL_WIFI_SSID;
+const char* WIFI_PASS    = LOCAL_WIFI_PASS;
+const char* ACCESS_TOKEN = LOCAL_COREIOT_TOKEN;
+#else
+const char* WIFI_SSID    = "YOUR_WIFI_SSID";
+const char* WIFI_PASS    = "YOUR_WIFI_PASSWORD";
 const char* ACCESS_TOKEN = "YOUR_COREIOT_TOKEN";
+#endif
+const char* MQTT_SERVER  = "app.coreiot.io";
+const int   MQTT_PORT    = 1883;
 
 SCD30 airSensor;
 TFT_eSPI tft = TFT_eSPI();

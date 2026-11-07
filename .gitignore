@@ -8,6 +8,11 @@ compile_commands.json
 .vscode/
 .idea/
 
+# Secrets & Local Credentials (NEVER push to Git)
+include/credentials.h
+credentials.h
+secrets.h
+
 # Python Virtual Environment & Cache
 .venv/
 __pycache__/

@@ -10,8 +10,15 @@
 #define I2C_SDA_PIN 27
 #define I2C_SCL_PIN 22
 
+// Thong tin Wi-Fi (Bảo mật: tự động nạp credentials nội bộ nếu có, mặc định placeholder khi push Git)
+#if __has_include("credentials.h")
+#include "credentials.h"
+const char* STA_SSID = LOCAL_WIFI_SSID;
+const char* STA_PASS = LOCAL_WIFI_PASS;
+#else
 const char* STA_SSID = "YOUR_WIFI_SSID";
 const char* STA_PASS = "YOUR_WIFI_PASSWORD";
+#endif
 const char* AP_SSID  = "ESP32-Lab-AP";
 const char* AP_PASS  = "12345678";
 
