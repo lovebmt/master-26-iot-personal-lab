@@ -10,25 +10,32 @@ load:0x40080400,len:3028
 entry 0x400805e4
 
 ========================================================
-  BAI 3: GIAO TIEP I2C CAM BIEN BH1750 + MAN HINH LCD
+  BAI 3: GIAO TIEP I2C CAM BIEN SENSIRION SCD30 + LCD
   Hoc vien: Le Duc Phuong
-  Board   : ESP32-2432S028R (CYD)
+  Board   : ESP32-2432S028R (Cheap Yellow Display)
+  Sensor  : Sensirion SCD30 (NDIR CO2 + Temp + Humidity)
   I2C Pins: SDA = GPIO 27, SCL = GPIO 22
-  Address : 0x23 (Continuous High-Res)
+  Address : 0x61
 ========================================================
 
 ------------------------------------------------
 [I2C SCANNER] Quet tren bus SDA=27, SCL=22...
-  -> Tim thay thiet bi I2C tai: 0x23 (Cam bien quang BH1750)
-  -> Tim thay thiet bi I2C tai: 0x61
+  -> Tim thay thiet bi I2C tai: 0x23
+  -> Tim thay thiet bi I2C tai: 0x61 (Cam bien Sensirion SCD30 - NDIR CO2/Temp/Hum)
 [I2C SCANNER] Tim thay tong cong 2 thiet bi.
 ------------------------------------------------
 
-[BH1750] Khoi tao cam bien thanh cong!
-[1549 ms] [BH1750 SENSOR] Cuong do sang: 45.00 Lux
-[COREIOT MQTT] Published: {"light_lux":45}
-[3049 ms] [BH1750 SENSOR] Cuong do sang: 45.00 Lux
-[COREIOT MQTT] Published: {"light_lux":44.16666}
-[4549 ms] [BH1750 SENSOR] Cuong do sang: 44.17 Lux
-[COREIOT MQTT] Published: {"light_lux":45}
-[6049 ms] [BH1750 SENSOR] Cuong do sang: 45.00 Lux
+[SCD30] Dang ket noi cam bien Sensirion SCD30...
+[SUCCESS] Ket noi Sensirion SCD30 thanh cong tai dia chi 0x61!
+[WIFI] Dang ket noi toi SSID: YOUR_WIFI_SSID ...
+[2004 ms] [SCD30 SENSOR] Dang cho du lieu san sang...
+[COREIOT MQTT] Ket noi thanh cong toi CoreIOT Broker!
+[5496 ms] [SCD30 SENSOR] CO2: 1141.0 ppm | Temp: 33.27 C | Hum: 39.83 %
+[COREIOT MQTT] Published: {"co2":1141,"temperature":33.27,"humidity":39.83}
+[7495 ms] [SCD30 SENSOR] CO2: 1139.0 ppm | Temp: 33.26 C | Hum: 39.84 %
+[COREIOT MQTT] Published: {"co2":1139,"temperature":33.26,"humidity":39.84}
+[9495 ms] [SCD30 SENSOR] CO2: 1138.0 ppm | Temp: 33.26 C | Hum: 39.87 %
+[COREIOT MQTT] Published: {"co2":1138,"temperature":33.26,"humidity":39.87}
+[11482 ms] [SCD30 SENSOR] Dang cho du lieu san sang...
+[13493 ms] [SCD30 SENSOR] CO2: 1140.0 ppm | Temp: 33.27 C | Hum: 39.79 %
+[COREIOT MQTT] Published: {"co2":1140,"temperature":33.27,"humidity":39.79}

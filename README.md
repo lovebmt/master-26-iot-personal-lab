@@ -143,14 +143,9 @@ master-26-iot-personal-lab/
 │   ├── bai3/                           # 5 ảnh I2C SCD30 (Sơ đồ, I2C scan log, Telemetry, LCD, CoreIOT)
 │   ├── bai4/                           # 2 ảnh Semaphore (Sơ đồ luồng, Serial sync log)
 │   └── bai5/                           # 4 ảnh Web Server (Giao diện desktop, mobile, serial IP, LED ON)
-├── videos/                             # Video minh chứng thực tế lưu cục bộ
-│   ├── Video_Demo_Bai2_LED_Blinky.mp4  # Video Bài 2 (74 MB)
-│   └── Video_Demo_Bai5_WebServer_IoT.mp4 # Video Bài 5 (79.7 MB)
-└── scripts/                            # Bộ công cụ kiểm thử, ghi hình và điền báo cáo tự động
-    ├── fill_report_docx.py             # Script tự động định dạng và điền nội dung báo cáo Word
-    ├── insert_images_docx.py           # Script tự động nhúng 18 ảnh minh chứng vào Word
-    ├── insert_youtube_links.py         # Script tạo Hyperlink YouTube clickable trong Word
-    └── record_bai5_video.py            # Script tự động quay video màn hình kép Desktop/Camera
+└── videos/                             # Video minh chứng thực tế lưu cục bộ
+    ├── Video_Demo_Bai2_LED_Blinky.mp4  # Video Bài 2 (74 MB)
+    └── Video_Demo_Bai5_WebServer_IoT.mp4 # Video Bài 5 (79.7 MB)
 ```
 
 ---

@@ -10,13 +10,20 @@ load:0x40080400,len:3028
 entry 0x400805e4
 
 ========================================================
-  BAI 5: THIET KE WEBSERVER ESP32 CYD (STA + SOFTAP)
+  BAI 5: ESP32 RESTFUL WEBSERVER & AJAX SENSIRION SCD30
   Hoc vien: Le Duc Phuong
-  Board   : ESP32-2432S028R (CYD) + LCD ILI9341
-  SoftAP  : SSID='ESP32-Lab-AP', Pass='12345678'
-  SoftAP IP: http://192.168.4.1
-..
-  Station Connected! IP: http://192.168.1.4
+  Board   : ESP32-2432S028R (CYD)
+  Sensor  : Sensirion SCD30 (I2C 0x61)
 ========================================================
+[SUCCESS] Khoi tao Sensirion SCD30 thanh cong tai 0x61!
+[WIFI] Dang ket noi toi: YOUR_WIFI_SSID ...
+...
+[WIFI STA SUCCESS] IP: 192.168.1.4
+[WIFI AP SUCCESS] SoftAP SSID: ESP32-Lab-AP | IP: 192.168.4.1
+[HTTP SERVER] Webserver da khoi chay tren cong 80!
+--------------------------------------------------------
+  Truy cap Web Dashboard: http://192.168.1.4/
+  API Telemetry:         http://<IP>/api/data
+  API Toggle LED:        http://<IP>/api/led/toggle
+--------------------------------------------------------
 
-[WEBSERVER] HTTP Server khoi dong thanh cong tren cong 80!

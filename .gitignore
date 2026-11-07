@@ -1,14 +1,30 @@
-# PlatformIO
+# PlatformIO Build & Environment
 .pio/
 .pioenvs/
 .piolibdeps/
+compile_commands.json
 
-# Python Virtualenv
+# IDE Settings
+.vscode/
+.idea/
+
+# Python Virtual Environment & Cache
 .venv/
 __pycache__/
 *.pyc
 
-# Temporary screenshots
+# Local automation scripts & tools (not required for submission)
+scripts/
+
+# Working drafts & temporary files
+*Draft*
+*draft*
+BAO_CAO_CHI_TIET.md
+*.tmp
+*.mov
+test*
+
+# Temporary screenshots & screen grabs
 evidence/*.png
 !evidence/bai*/*.png
 evidence/full_screen*.png
@@ -16,5 +32,8 @@ evidence/screen_*.png
 evidence/qt_*.png
 evidence/hardware_cam_live.png
 
-# OS artifacts
+# macOS System Files
 .DS_Store
+._*
+.Spotlight-V100
+.Trashes
