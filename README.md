@@ -22,6 +22,7 @@
 * **Email**: `leducphuong.hcm@gmail.com`
 * **Kho mã nguồn GitHub**: [https://github.com/lovebmt/master-26-iot-personal-lab](https://github.com/lovebmt/master-26-iot-personal-lab)
 * **File báo cáo Word hoàn chỉnh**: [`BaoCaoThucHanh_LeDucPhuong.docx`](BaoCaoThucHanh_LeDucPhuong.docx)
+* **File báo cáo PDF chính thức (Nộp bài)**: [`2570480_LeDucPhuong_BaoCaoThucHanh.pdf`](2570480_LeDucPhuong_BaoCaoThucHanh.pdf)
 
 ---
 
@@ -128,6 +129,7 @@ Dự án được triển khai trên phần cứng thực tế:
 
 ```
 master-26-iot-personal-lab/
+├── 2570480_LeDucPhuong_BaoCaoThucHanh.pdf # Báo cáo PDF chính thức nộp bài
 ├── BaoCaoThucHanh_LeDucPhuong.docx     # Báo cáo Word hoàn chỉnh (18 ảnh minh chứng + link video)
 ├── BaoCaoThucHanh_ThacSi (1).docx      # Đề cương thực hành gốc của Giảng viên
 ├── platformio.ini                      # Cấu hình PlatformIO cho 4 môi trường firmware
