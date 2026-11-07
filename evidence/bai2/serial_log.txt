@@ -1,0 +1,26 @@
+ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:1184
+load:0x40078000,len:13232
+load:0x40080400,len:3028
+entry 0x400805e4
+
+========================================================
+  BAI 2: DIEU KHIEN LED BLINKY TREN ESP32 CYD
+  Hoc vien: Le Duc Phuong
+  Board   : ESP32-2432S028R (CYD)
+  Hardware: GPIO 4 (Onboard Red LED - Active LOW)
+  Interval: 1000 ms (Non-blocking millis)
+========================================================
+
+[00:01] [LED #1] Trang thai: BAT (ON)  (GPIO 4: LOW )
+[00:02] [LED #2] Trang thai: TAT (OFF) (GPIO 4: HIGH)
+[00:03] [LED #3] Trang thai: BAT (ON)  (GPIO 4: LOW )
+[00:04] [LED #4] Trang thai: TAT (OFF) (GPIO 4: HIGH)
+[00:05] [LED #5] Trang thai: BAT (ON)  (GPIO 4: LOW )
+[00:06] [LED #6] Trang thai: TAT (OFF) (GPIO 4: HIGH)
+[00:07] [LED #7] Trang thai: BAT (ON)  (GPIO 4: LOW )

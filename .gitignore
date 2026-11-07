@@ -1,0 +1,20 @@
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# Python Virtualenv
+.venv/
+__pycache__/
+*.pyc
+
+# Temporary screenshots
+evidence/*.png
+!evidence/bai*/*.png
+evidence/full_screen*.png
+evidence/screen_*.png
+evidence/qt_*.png
+evidence/hardware_cam_live.png
+
+# OS artifacts
+.DS_Store
