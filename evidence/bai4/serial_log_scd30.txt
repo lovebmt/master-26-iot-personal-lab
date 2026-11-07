@@ -1,0 +1,47 @@
+ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:1184
+load:0x40078000,len:13232
+load:0x40080400,len:3028
+entry 0x400805e4
+
+========================================================
+  BAI 4: DONG BO HOA TASK VOI FREERTOS BINARY SEMAPHORE
+  Hoc vien: Le Duc Phuong
+  Board   : ESP32-2432S028R (CYD)
+  Sensor  : Sensirion SCD30 (I2C 0x61)
+  Co che  : Binary Semaphore (Producer - Consumer)
+========================================================
+[SUCCESS] Khoi tao Sensirion SCD30 thanh cong tai 0x61!
+[FREERTOS] Da tao thanh cong Binary Semaphore.
+[FREERTOS] Da tao TaskSensor (Priority 2) tren Core 1.
+[FREERTOS] Da tao TaskLogger (Priority 1) tren Core 1.
+[3446 ms] [TASK SENSOR (Prio 2)] Doc SCD30: CO2=1110.0 ppm, T=33.03 C, H=40.02 %
+[3447 ms] [TASK SENSOR] Phat Semaphore: xSemaphoreGive()...
+[3457 ms] [TASK LOGGER (Prio 1)] >>> Nhan duoc Semaphore #1 <<<
+    [DONG BO THANH CONG] Shared Data: CO2=1110.0 ppm | Temp=33.03 C | Hum=40.02 % (Ghi nhan luc 3446 ms)
+
+[5446 ms] [TASK SENSOR (Prio 2)] Doc SCD30: CO2=1111.0 ppm, T=33.03 C, H=40.30 %
+[5446 ms] [TASK SENSOR] Phat Semaphore: xSemaphoreGive()...
+[5456 ms] [TASK LOGGER (Prio 1)] >>> Nhan duoc Semaphore #2 <<<
+    [DONG BO THANH CONG] Shared Data: CO2=1111.0 ppm | Temp=33.03 C | Hum=40.30 % (Ghi nhan luc 5446 ms)
+
+[7446 ms] [TASK SENSOR (Prio 2)] Doc SCD30: CO2=1115.0 ppm, T=33.00 C, H=40.16 %
+[7446 ms] [TASK SENSOR] Phat Semaphore: xSemaphoreGive()...
+[7456 ms] [TASK LOGGER (Prio 1)] >>> Nhan duoc Semaphore #3 <<<
+    [DONG BO THANH CONG] Shared Data: CO2=1115.0 ppm | Temp=33.00 C | Hum=40.16 % (Ghi nhan luc 7446 ms)
+
+[9446 ms] [TASK SENSOR (Prio 2)] Doc SCD30: CO2=1118.0 ppm, T=33.02 C, H=40.11 %
+[9446 ms] [TASK SENSOR] Phat Semaphore: xSemaphoreGive()...
+[9456 ms] [TASK LOGGER (Prio 1)] >>> Nhan duoc Semaphore #4 <<<
+    [DONG BO THANH CONG] Shared Data: CO2=1118.0 ppm | Temp=33.02 C | Hum=40.11 % (Ghi nhan luc 9446 ms)
+
+[11446 ms] [TASK SENSOR (Prio 2)] Doc SCD30: CO2=1117.0 ppm, T=33.00 C, H=40.17 %
+[11446 ms] [TASK SENSOR] Phat Semaphore: xSemaphoreGive()...
+[11456 ms] [TASK LOGGER (Prio 1)] >>> Nhan duoc Semaphore #5 <<<
+    [DONG BO THANH CONG] Shared Data: CO2=1117.0 ppm | Temp=33.00 C | Hum=40.17 % (Ghi nhan luc 11446 ms)
+

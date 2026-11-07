@@ -1,127 +1,111 @@
-/**
- * BÀI 4. LẬP TRÌNH SEMAPHORE TRÊN ESP32 CYD (FREERTOS)
- * Môn học: Internet of Things - Chương trình Thạc sĩ
- * Học viên: Lê Đức Phương
- *
- * Loại Semaphore: Binary Semaphore (xSemaphoreCreateBinary)
- * Các tác vụ:
- *   - TaskSensor (Độ ưu tiên 2): Đọc cảm biến BH1750 định kỳ, gửi tín hiệu (Give)
- *   - TaskLogger (Độ ưu tiên 1): Chờ nhận tín hiệu (Take), in Serial & cập nhật LCD
- * Mở rộng: Trực quan hóa tiến trình đồng bộ FreeRTOS trên màn hình LCD 2.8"
- */
-
 #include <Arduino.h>
 #include <Wire.h>
-#include <BH1750.h>
 #include <TFT_eSPI.h>
+#include <SparkFun_SCD30_Arduino_Library.h>
 
 #define I2C_SDA_PIN 27
 #define I2C_SCL_PIN 22
-#define BH1750_I2C_ADDR 0x23
-#define LED_PIN 4
 
-// Khởi tạo ngoại vi
+struct SensorData {
+    float co2;
+    float temp;
+    float hum;
+    unsigned long timestamp;
+};
+
+SensorData sharedData;
+SemaphoreHandle_t xSemaphore = NULL;
+SCD30 airSensor;
 TFT_eSPI tft = TFT_eSPI();
-BH1750 lightMeter;
 
-// Khai báo Semaphore và biến dữ liệu dùng chung (Shared Resource)
-SemaphoreHandle_t xBinarySemaphore = NULL;
-volatile float sharedSensorValue = 0.0;
-volatile unsigned long giveCount = 0;
-volatile unsigned long takeCount = 0;
+unsigned long syncCount = 0;
 
-void drawStaticUI() {
+void initLCD() {
+    tft.init();
+    tft.setRotation(1);
     tft.fillScreen(TFT_BLACK);
 
-    // Header Bar
-    tft.fillRect(0, 0, 320, 34, 0x500A); // Deep Maroon / Violet
-    tft.setTextColor(TFT_WHITE, 0x500A);
-    tft.drawString("BAI 4: FREERTOS SEMAPHORE", 12, 8, 4);
+    // Header
+    tft.fillRoundRect(5, 5, 310, 42, 6, 0x18E3);
+    tft.setTextColor(TFT_CYAN, 0x18E3);
+    tft.drawString("BAI 4: FREERTOS SEMAPHORE", 14, 10, 4);
+    tft.setTextColor(TFT_WHITE, 0x18E3);
+    tft.drawString("Hoc vien: Le Duc Phuong - ESP32 CYD", 14, 30, 2);
 
-    // Sub header info
-    tft.setTextColor(TFT_CYAN, TFT_BLACK);
-    tft.drawString("Hoc vien: Le Duc Phuong", 12, 42, 2);
-    tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
-    tft.drawString("Sync Type: Binary Semaphore (Signaling)", 12, 60, 2);
-    tft.drawString("Tasks    : TaskSensor (Prio 2) -> TaskLogger (Prio 1)", 12, 78, 2);
+    // Task Sensor Card
+    tft.fillRoundRect(5, 52, 310, 56, 6, 0x10A2);
+    tft.setTextColor(TFT_YELLOW, 0x10A2);
+    tft.drawString("TASK 1: vTaskSensor (Priority 2)", 12, 56, 2);
 
-    tft.drawFastHLine(10, 96, 300, TFT_DARKGREY);
+    // Task Logger Card
+    tft.fillRoundRect(5, 113, 310, 56, 6, 0x10A2);
+    tft.setTextColor(TFT_GREEN, 0x10A2);
+    tft.drawString("TASK 2: vTaskLogger (Priority 1)", 12, 117, 2);
+
+    // Sync Status Card
+    tft.fillRoundRect(5, 175, 310, 60, 6, 0x2124);
+    tft.setTextColor(TFT_CYAN, 0x2124);
+    tft.drawString("SEMAPHORE STATUS:", 12, 180, 2);
 }
 
-void updateSemaphoreUI(float val, unsigned long gCount, unsigned long tCount) {
-    // Card Task 1: TaskSensor (GIVE)
-    tft.fillRoundRect(12, 104, 296, 38, 6, 0x01E4);
-    tft.drawRoundRect(12, 104, 296, 38, 6, TFT_CYAN);
-    tft.setTextColor(TFT_WHITE, 0x01E4);
-    tft.drawString("TaskSensor (Prio 2):", 20, 114, 2);
-    char buf1[32];
-    sprintf(buf1, "GIVE #%lu", gCount);
-    tft.setTextColor(TFT_GREENYELLOW, 0x01E4);
-    tft.drawString(buf1, 200, 114, 2);
+void updateLCD(float co2, float temp, float hum, unsigned long count) {
+    // Task 1 info
+    tft.fillRoundRect(12, 75, 296, 28, 4, 0x10A2);
+    tft.setTextColor(TFT_WHITE, 0x10A2);
+    char s1[64];
+    sprintf(s1, "Doc SCD30 (2s) -> Give() Sem");
+    tft.drawString(s1, 14, 80, 2);
 
-    // Card Task 2: TaskLogger (TAKE)
-    tft.fillRoundRect(12, 148, 296, 38, 6, 0x30A2);
-    tft.drawRoundRect(12, 148, 296, 38, 6, TFT_GREEN);
-    tft.setTextColor(TFT_WHITE, 0x30A2);
-    tft.drawString("TaskLogger (Prio 1):", 20, 158, 2);
-    char buf2[32];
-    sprintf(buf2, "TAKE #%lu", tCount);
-    tft.setTextColor(TFT_YELLOW, 0x30A2);
-    tft.drawString(buf2, 200, 158, 2);
+    // Task 2 info
+    tft.fillRoundRect(12, 136, 296, 28, 4, 0x10A2);
+    tft.setTextColor(TFT_GREENYELLOW, 0x10A2);
+    char s2[64];
+    sprintf(s2, "CO2:%.0f | T:%.1fC | H:%.1f%%", co2, temp, hum);
+    tft.drawString(s2, 14, 140, 2);
 
-    // Bottom Value Bar
-    char bufVal[48];
-    sprintf(bufVal, "Shared Value: %.2f Lux", val);
-    tft.fillRect(12, 196, 296, 36, TFT_BLACK);
-    tft.drawRect(12, 196, 296, 36, TFT_DARKGREY);
-    tft.setTextColor(TFT_CYAN, TFT_BLACK);
-    tft.drawString(bufVal, 40, 204, 4);
+    // Sync status
+    tft.fillRoundRect(12, 202, 296, 28, 4, 0x2124);
+    tft.setTextColor(TFT_GREEN, 0x2124);
+    char s3[64];
+    sprintf(s3, "SYNC #%lu OK (Take portMAX_DELAY)", count);
+    tft.drawString(s3, 14, 204, 2);
 }
 
-// -------------------------------------------------------------
-// TASK 1: Đọc cảm biến BH1750 và Give Semaphore
-// -------------------------------------------------------------
-void TaskSensor(void *pvParameters) {
-    (void) pvParameters;
+// Task 1: vTaskSensor (Priority 2 - Cao hon)
+void vTaskSensor(void *pvParameters) {
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+    const TickType_t xFrequency = pdMS_TO_TICKS(2000);
+
     for (;;) {
-        float lux = lightMeter.readLightLevel();
-        if (lux < 0.0) lux = 0.0;
+        vTaskDelayUntil(&xLastWakeTime, xFrequency);
 
-        // Cập nhật tài nguyên dùng chung
-        sharedSensorValue = lux;
-        giveCount++;
+        if (airSensor.dataAvailable()) {
+            sharedData.co2 = airSensor.getCO2();
+            sharedData.temp = airSensor.getTemperature();
+            sharedData.hum = airSensor.getHumidity();
+            sharedData.timestamp = millis();
 
-        Serial.printf("[Task 1 - Sensor] (Prio 2) Doc Cam Bien: %.2f Lux -> [xSemaphoreGive]\n", lux);
+            Serial.printf("[%lu ms] [TASK SENSOR (Prio 2)] Doc SCD30: CO2=%.1f ppm, T=%.2f C, H=%.2f %%\n",
+                          sharedData.timestamp, sharedData.co2, sharedData.temp, sharedData.hum);
+            Serial.printf("[%lu ms] [TASK SENSOR] Phat Semaphore: xSemaphoreGive()...\n", millis());
 
-        // Báo hiệu cho TaskLogger qua Binary Semaphore
-        xSemaphoreGive(xBinarySemaphore);
-
-        // Chu kỳ lấy mẫu 2000ms (dùng vTaskDelay nhường CPU)
-        vTaskDelay(pdMS_TO_TICKS(2000));
+            xSemaphoreGive(xSemaphore);
+        }
     }
 }
 
-// -------------------------------------------------------------
-// TASK 2: Chờ Semaphore, In Log và Cập nhật Hiển thị
-// -------------------------------------------------------------
-void TaskLogger(void *pvParameters) {
-    (void) pvParameters;
+// Task 2: vTaskLogger (Priority 1 - Thap hon)
+void vTaskLogger(void *pvParameters) {
     for (;;) {
-        // Chờ nhận Semaphore (trạng thái Blocked không tốn CPU)
-        if (xSemaphoreTake(xBinarySemaphore, portMAX_DELAY) == pdTRUE) {
-            takeCount++;
-            float receivedValue = sharedSensorValue;
+        // Cho vo han cho den khi TaskSensor phat Semaphore
+        if (xSemaphoreTake(xSemaphore, portMAX_DELAY) == pdTRUE) {
+            syncCount++;
+            Serial.printf("[%lu ms] [TASK LOGGER (Prio 1)] >>> Nhan duoc Semaphore #%lu <<<\n",
+                          millis(), syncCount);
+            Serial.printf("    [DONG BO THANH CONG] Shared Data: CO2=%.1f ppm | Temp=%.2f C | Hum=%.2f %% (Ghi nhan luc %lu ms)\n\n",
+                          sharedData.co2, sharedData.temp, sharedData.hum, sharedData.timestamp);
 
-            // Nháy nhanh LED để biểu thị nhận sự kiện
-            digitalWrite(LED_PIN, LOW); // LED ON
-            
-            Serial.printf("  ==> [Task 2 - Logger] (Prio 1) [xSemaphoreTake] THANH CONG! Nhan gia tri: %.2f Lux\n", receivedValue);
-
-            // Cập nhật LCD
-            updateSemaphoreUI(receivedValue, giveCount, takeCount);
-
-            vTaskDelay(pdMS_TO_TICKS(100));
-            digitalWrite(LED_PIN, HIGH); // LED OFF
+            updateLCD(sharedData.co2, sharedData.temp, sharedData.hum, syncCount);
         }
     }
 }
@@ -130,58 +114,59 @@ void setup() {
     Serial.begin(115200);
     delay(1000);
 
-    pinMode(LED_PIN, OUTPUT);
-    digitalWrite(LED_PIN, HIGH); // Tắt LED ban đầu (Active-LOW)
-
-    // Khởi tạo LCD
-    tft.init();
-    tft.setRotation(1);
-    drawStaticUI();
-    updateSemaphoreUI(0.0, 0, 0);
-
     Serial.println("\n========================================================");
-    Serial.println("  BAI 4: DONG BO HOA TASK VOI BINARY SEMAPHORE (FREERTOS)");
+    Serial.println("  BAI 4: DONG BO HOA TASK VOI FREERTOS BINARY SEMAPHORE");
     Serial.println("  Hoc vien: Le Duc Phuong");
-    Serial.println("  Board   : ESP32-2432S028R (CYD) + LCD ILI9341");
-    Serial.println("  Semaphore: Binary Semaphore (Signaling mechanism)");
-    Serial.println("  Task 1  : TaskSensor (Priority 2) -> Gives Semaphore");
-    Serial.println("  Task 2  : TaskLogger (Priority 1) -> Takes Semaphore");
-    Serial.println("========================================================\n");
+    Serial.println("  Board   : ESP32-2432S028R (CYD)");
+    Serial.println("  Sensor  : Sensirion SCD30 (I2C 0x61)");
+    Serial.println("  Co che  : Binary Semaphore (Producer - Consumer)");
+    Serial.println("========================================================");
 
-    // Khởi tạo I2C và BH1750
+    initLCD();
+
     Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
-    lightMeter.begin(BH1750::CONTINUOUS_HIGH_RES_MODE, BH1750_I2C_ADDR, &Wire);
+    Wire.setClock(50000);
 
-    // 1. Tạo Binary Semaphore
-    xBinarySemaphore = xSemaphoreCreateBinary();
-
-    if (xBinarySemaphore != NULL) {
-        Serial.println("[FREERTOS] Khoi tao Binary Semaphore thanh cong!");
-
-        // 2. Khởi tạo 2 Task FreeRTOS chạy đồng thời trên 2 mức ưu tiên
-        xTaskCreate(
-            TaskSensor,
-            "TaskSensor",
-            4096,
-            NULL,
-            2,          // Priority 2 (Cao hơn)
-            NULL
-        );
-
-        xTaskCreate(
-            TaskLogger,
-            "TaskLogger",
-            4096,
-            NULL,
-            1,          // Priority 1 (Thấp hơn)
-            NULL
-        );
+    if (!airSensor.begin(Wire)) {
+        Serial.println("[ERROR] Khong tim thay SCD30!");
     } else {
-        Serial.println("[FREERTOS ERROR] Khong the tao Binary Semaphore!");
+        Serial.println("[SUCCESS] Khoi tao Sensirion SCD30 thanh cong tai 0x61!");
+        airSensor.setMeasurementInterval(2);
     }
+
+    // Tao Binary Semaphore
+    xSemaphore = xSemaphoreCreateBinary();
+    if (xSemaphore == NULL) {
+        Serial.println("[ERROR] Khong the tao Semaphore!");
+        while (1);
+    }
+    Serial.println("[FREERTOS] Da tao thanh cong Binary Semaphore.");
+
+    // Tao Task 1: vTaskSensor (Priority 2 - Producer)
+    xTaskCreatePinnedToCore(
+        vTaskSensor,
+        "TaskSensor",
+        4096,
+        NULL,
+        2,
+        NULL,
+        1
+    );
+    Serial.println("[FREERTOS] Da tao TaskSensor (Priority 2) tren Core 1.");
+
+    // Tao Task 2: vTaskLogger (Priority 1 - Consumer)
+    xTaskCreatePinnedToCore(
+        vTaskLogger,
+        "TaskLogger",
+        4096,
+        NULL,
+        1,
+        NULL,
+        1
+    );
+    Serial.println("[FREERTOS] Da tao TaskLogger (Priority 1) tren Core 1.");
 }
 
 void loop() {
-    // Vòng lặp loop của Arduino để trống, nhường quyền hoàn toàn cho FreeRTOS scheduler
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelete(NULL); // Huy loop() de danh toan bo CPU cho FreeRTOS tasks
 }
